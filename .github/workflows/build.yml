@@ -5,34 +5,47 @@ on:
       - master
     tags:
       - 'v*'
-  schedule:
-    - cron: '0 16 * * 0'
+  workflow_dispatch:
 
 jobs:
   build_test:
     name: Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 720
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get Env
-        run: env
+      - name: Install dependencies
+        run: |
+          sudo apt-get install git make lsb-release qemu-user-static
 
-#      - name: Ckeck Build
-#        timeout-minutes: 720
-#        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-#        run: scripts/tests/build_test -s Install-deps -e CHK
+      - name: Build
+        run: |
+          source env/setenv.sh config config-template.conf
+          make
+      
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: os-image
+          path: build/images/*.img
+#       - name: Get Env
+#         run: env
 
-      - name: Release Build
-        timeout-minutes: 720
-        if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
-        run: scripts/tests/build_test -s Install-deps -e REL
+# #      - name: Ckeck Build
+# #        timeout-minutes: 720
+# #        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+# #        run: scripts/tests/build_test -s Install-deps -e CHK
 
-      - name: Rootfs Cache Build
-        timeout-minutes: 720
-        if: ${{ github.event_name == 'schedule' && github.ref == 'refs/heads/master' }}
-        run: scripts/tests/build_test -s Install-deps -e "\-CACHE"
+#       - name: Release Build
+#         timeout-minutes: 720
+#         if: ${{ github.event_name == 'push' && github.ref != 'refs/heads/master' }}
+#         run: scripts/tests/build_test -s Install-deps -e REL
+
+#       - name: Rootfs Cache Build
+#         timeout-minutes: 720
+#         if: ${{ github.ref == 'refs/heads/master' }}
+#         run: scripts/tests/build_test -s Install-deps -e "\-CACHE"
