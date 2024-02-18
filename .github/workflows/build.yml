@@ -18,13 +18,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache build
+      - name: Cache build/linux
         uses: actions/cache@v4
         with:
-          path: build
-          key: ${{ runner.os }}-build-${{ hashFiles('**/config-template.conf') }}
+          path: build/linux
+          key: ${{ runner.os }}-linux-${{ hashFiles('**/config-template.conf') }}
           restore-keys: |
-            ${{ runner.os }}-build-
+            ${{ runner.os }}-linux-
+
+      - name: Cache build/linux
+        uses: actions/cache@v4
+        with:
+          path: build/u-boot
+          key: ${{ runner.os }}-u-boot-${{ hashFiles('**/config-template.conf') }}
+          restore-keys: |
+            ${{ runner.os }}-u-boot-
 
       - name: Install dependencies
         run: |
