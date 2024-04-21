@@ -34,19 +34,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-u-boot-
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get install git make lsb-release qemu-user-static
+      # - name: Install dependencies
+      #   run: |
+      #     sudo apt-get install git make lsb-release qemu-user-static
 
       - name: Build
         run: |
-          source env/setenv.sh config config-template.conf
-          make
+          ./build.sh
       
       - name: upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: os-image
+          name: artifact
           path: build/images/*.img
 #       - name: Get Env
 #         run: env
